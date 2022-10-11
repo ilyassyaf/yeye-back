@@ -11,6 +11,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/ilyassyaf/yeyebackend/config"
 	"github.com/ilyassyaf/yeyebackend/controllers"
+	"github.com/ilyassyaf/yeyebackend/repository"
 	"github.com/ilyassyaf/yeyebackend/routes"
 	"github.com/ilyassyaf/yeyebackend/services"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -37,6 +38,10 @@ var (
 	authService         services.AuthService
 	AuthController      controllers.AuthController
 	AuthRouteController routes.AuthRouteController
+
+	tokenController      controllers.TokenCotroller
+	tokenService         services.TokenService
+	TokenRouteController routes.TokenRouteController
 )
 
 func main() {
@@ -68,6 +73,7 @@ func main() {
 	AuthRouteController.AuthRoute(router, userService)
 	UserRouteController.UserRoute(router, userService)
 	CounterRouteController.CounterRoute(router, userService)
+	TokenRouteController.TokenRoute(router, userService)
 	log.Fatal(server.Run(":" + config.Port))
 }
 
@@ -110,8 +116,8 @@ func init() {
 
 	// collections
 	authCollection = mongoclient.Database("golang_mongodb").Collection("users")
-	userService = services.NewUserServiceImpl(authCollection, ctx)
-	authService = services.NewAuthService(authCollection, ctx)
+	userService = repository.NewUserServiceImpl(authCollection, ctx)
+	authService = repository.NewAuthService(authCollection, ctx)
 	AuthController = controllers.NewAuthController(authService, userService)
 	AuthRouteController = routes.NewAuthRouteController(AuthController)
 
@@ -119,9 +125,13 @@ func init() {
 	UserRouteController = routes.NewUserRouteController(UserController)
 
 	counterCollection = mongoclient.Database("golang_mongodb").Collection("sequence")
-	counterService = services.NewCounterServiceImpl(counterCollection, ctx)
+	counterService = repository.NewCounterServiceImpl(counterCollection, ctx)
 	counterController = controllers.NewCounterController(counterService)
 	CounterRouteController = routes.NewCounterRouteController(counterController)
+
+	tokenService = repository.NewTokenServiceImpl(mongoclient.Database("golang_mongodb"), ctx)
+	tokenController = controllers.NewTokenController(tokenService, counterService)
+	TokenRouteController = routes.NewTokenRouteController(tokenController)
 
 	server = gin.Default()
 }
