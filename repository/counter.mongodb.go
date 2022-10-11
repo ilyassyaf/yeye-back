@@ -1,9 +1,10 @@
-package services
+package repository
 
 import (
 	"context"
 
 	"github.com/ilyassyaf/yeyebackend/models"
+	"github.com/ilyassyaf/yeyebackend/services"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -11,10 +12,10 @@ import (
 
 type CounterServiceImpl struct {
 	collection *mongo.Collection
-	ctx    context.Context
+	ctx        context.Context
 }
 
-func NewCounterServiceImpl(collection *mongo.Collection, ctx context.Context) CounterService {
+func NewCounterServiceImpl(collection *mongo.Collection, ctx context.Context) services.CounterService {
 	return &CounterServiceImpl{collection, ctx}
 }
 

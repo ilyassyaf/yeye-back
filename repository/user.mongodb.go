@@ -1,10 +1,11 @@
-package services
+package repository
 
 import (
 	"context"
 	"strings"
 
 	"github.com/ilyassyaf/yeyebackend/models"
+	"github.com/ilyassyaf/yeyebackend/services"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,7 +16,7 @@ type UserServiceImpl struct {
 	ctx        context.Context
 }
 
-func NewUserServiceImpl(collection *mongo.Collection, ctx context.Context) UserService {
+func NewUserServiceImpl(collection *mongo.Collection, ctx context.Context) services.UserService {
 	return &UserServiceImpl{collection, ctx}
 }
 

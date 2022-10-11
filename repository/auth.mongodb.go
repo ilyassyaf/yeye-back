@@ -1,4 +1,4 @@
-package services
+package repository
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ilyassyaf/yeyebackend/models"
+	"github.com/ilyassyaf/yeyebackend/services"
 	"github.com/ilyassyaf/yeyebackend/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,7 +19,7 @@ type AuthServiceImpl struct {
 	ctx        context.Context
 }
 
-func NewAuthService(collection *mongo.Collection, ctx context.Context) AuthService {
+func NewAuthService(collection *mongo.Collection, ctx context.Context) services.AuthService {
 	return &AuthServiceImpl{collection, ctx}
 }
 
