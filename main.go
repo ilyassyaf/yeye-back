@@ -31,8 +31,6 @@ var (
 
 	counterCollection      *mongo.Collection
 	counterService         services.CounterService
-	counterController      controllers.CounterController
-	CounterRouteController routes.CounterRouteController
 
 	authCollection      *mongo.Collection
 	authService         services.AuthService
@@ -72,7 +70,6 @@ func main() {
 
 	AuthRouteController.AuthRoute(router, userService)
 	UserRouteController.UserRoute(router, userService)
-	CounterRouteController.CounterRoute(router, userService)
 	TokenRouteController.TokenRoute(router, userService)
 	log.Fatal(server.Run(":" + config.Port))
 }
@@ -126,8 +123,6 @@ func init() {
 
 	counterCollection = mongoclient.Database("golang_mongodb").Collection("sequence")
 	counterService = repository.NewCounterServiceImpl(counterCollection, ctx)
-	counterController = controllers.NewCounterController(counterService)
-	CounterRouteController = routes.NewCounterRouteController(counterController)
 
 	tokenService = repository.NewTokenServiceImpl(mongoclient.Database("golang_mongodb"), ctx)
 	tokenController = controllers.NewTokenController(tokenService, counterService)
