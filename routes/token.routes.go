@@ -17,11 +17,15 @@ func NewTokenRouteController(tokenController controllers.TokenCotroller) TokenRo
 
 func (tc *TokenRouteController) TokenRoute(rg *gin.RouterGroup, uService services.UserService) {
 	r := rg.Group("token")
+
+	r.GET("/metadata/:id", tc.tokenController.GetMetadata)
+
 	r.Use(middleware.DeserializeUser(uService))
 
 	r.GET("/all", tc.tokenController.GetAll)
 	r.GET("/get", tc.tokenController.Get)
 	r.POST("/store", tc.tokenController.Store)
+	r.POST("/image-store", tc.tokenController.StoreTokenImage)
 	r.POST("/category-store", tc.tokenController.StoreCategory)
 	r.GET("/category-all", tc.tokenController.GetAllByCategory)
 	r.GET("/category-get", tc.tokenController.GetByCategory)

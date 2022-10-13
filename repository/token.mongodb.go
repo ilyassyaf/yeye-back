@@ -73,8 +73,8 @@ func (ts *TokenServiceImpl) GetAllByCategory() ([]models.TokenCategory, error) {
 	return tokenList, nil
 }
 
-func (ts *TokenServiceImpl) GetAll() ([]models.TokenRes, error) {
-	var tokenList []models.TokenRes
+func (ts *TokenServiceImpl) GetAll() ([]*models.TokenRes, error) {
+	var tokenList []*models.TokenRes
 	lookup := bson.D{
 		{Key: "$lookup", Value: bson.D{
 			{Key: "from", Value: "token_categories"},
@@ -97,7 +97,7 @@ func (ts *TokenServiceImpl) GetAll() ([]models.TokenRes, error) {
 	curr, err := ts.db.Collection("token").Aggregate(ts.ctx, mongo.Pipeline{lookup, unwind, cat})
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return []models.TokenRes{}, err
+			return make([]*models.TokenRes, 0), err
 		}
 		return nil, err
 	}
@@ -202,4 +202,33 @@ func (ts *TokenServiceImpl) Get(id uint) (*models.TokenRes, error) {
 	}
 
 	return tokenRes, nil
+}
+
+func (ts *TokenServiceImpl) GetMetadata(id uint) (*models.TokenMetadata, error) {
+	var metadataRes *models.TokenMetadata
+	match := bson.D{
+		{Key: "$match", Value: bson.D{
+			{Key: "_id", Value: id},
+		}},
+	}
+	replaceRoot := bson.D{
+		{Key: "$replaceRoot", Value: bson.D{
+			{Key: "newRoot", Value: "$metadata"},
+		}},
+	}
+
+	curr, err := ts.db.Collection("token").Aggregate(ts.ctx, mongo.Pipeline{match, replaceRoot})
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return &models.TokenMetadata{}, err
+		}
+		return nil, err
+	}
+
+	curr.Next(ts.ctx)
+	if err := curr.Decode(&metadataRes); err != nil {
+		return nil, err
+	}
+
+	return metadataRes, nil
 }

@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/ilyassyaf/yeyebackend/config"
 	"github.com/ilyassyaf/yeyebackend/models"
 	"github.com/ilyassyaf/yeyebackend/services"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -69,8 +72,8 @@ func (tc *TokenCotroller) GetByCategory(c *gin.Context) {
 		return
 	}
 	result, err := tc.tokenService.GetByCategory(category)
-	if err != nil && err != mongo.ErrNoDocuments {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 		return
 	}
 
@@ -86,7 +89,7 @@ func (tc *TokenCotroller) Store(c *gin.Context) {
 
 	var token *models.TokenStore
 
-	if err := c.ShouldBindJSON(&token); err != nil {
+	if err := c.ShouldBind(&token); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
 	}
@@ -104,6 +107,48 @@ func (tc *TokenCotroller) Store(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"status": "success", "data": newToken})
 }
 
+func (tc *TokenCotroller) StoreTokenImage(c *gin.Context) {
+	config, err := config.LoadConfig("../")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "fail",
+			"message": "Could not load config",
+		})
+		return
+	}
+
+	file, err := c.FormFile("image_file")
+
+	// The file cannot be received.
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "fail",
+			"message": "No file is received",
+		})
+		return
+	}
+
+	// Retrieve file information
+	extension := filepath.Ext(file.Filename)
+	// Generate random file name for the new uploaded file so it doesn't override the old file with same name
+	newFileName := uuid.New().String() + extension
+
+	// The file is received, so let's save it
+	if err := c.SaveUploadedFile(file, "assets/"+newFileName); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "fail",
+			"message": "Unable to save the file: " + err.Error(),
+		})
+		return
+	}
+
+	// File saved successfully. Return proper result
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"path":   config.BaseUrl + "assets/" + newFileName,
+	})
+}
+
 func (tc *TokenCotroller) Get(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Query("id"), 10, 32)
 	if id == 0 {
@@ -111,10 +156,25 @@ func (tc *TokenCotroller) Get(c *gin.Context) {
 		return
 	}
 	tokenRes, err := tc.tokenService.Get(uint(id))
-	if err != nil && err != mongo.ErrNoDocuments {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": tokenRes})
+}
+
+func (tc *TokenCotroller) GetMetadata(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	if id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Please provide param:'id'"})
+		return
+	}
+	metadataRes, err := tc.tokenService.GetMetadata(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, metadataRes)
 }

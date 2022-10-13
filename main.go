@@ -63,6 +63,8 @@ func main() {
 
 	server.Use(cors.New(corsConfig))
 
+	server.Static("/assets", "./assets")
+	
 	router := server.Group("/api")
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
