@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	DBUri                  string        `mapstructure:"MONGODB_LOCAL_URI"`
+	DBName                 string        `mapstructure:"MONGO_LOCAL_DBNAME"`
 	RedisUri               string        `mapstructure:"REDIS_URL"`
 	BaseUrl                string        `mapstructure:"BASE_URL"`
 	Port                   string        `mapstructure:"PORT"`

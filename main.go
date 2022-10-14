@@ -29,8 +29,8 @@ var (
 	UserController      controllers.UserController
 	UserRouteController routes.UserRouteController
 
-	counterCollection      *mongo.Collection
-	counterService         services.CounterService
+	counterCollection *mongo.Collection
+	counterService    services.CounterService
 
 	authCollection      *mongo.Collection
 	authService         services.AuthService
@@ -64,7 +64,7 @@ func main() {
 	server.Use(cors.New(corsConfig))
 
 	server.Static("/assets", "./assets")
-	
+
 	router := server.Group("/api")
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
@@ -114,7 +114,7 @@ func init() {
 	fmt.Println("Redis client connected successfully...")
 
 	// collections
-	authCollection = mongoclient.Database("golang_mongodb").Collection("users")
+	authCollection = mongoclient.Database(config.DBName).Collection("users")
 	userService = repository.NewUserServiceImpl(authCollection, ctx)
 	authService = repository.NewAuthService(authCollection, ctx)
 	AuthController = controllers.NewAuthController(authService, userService)
@@ -123,10 +123,10 @@ func init() {
 	UserController = controllers.NewUserController(userService)
 	UserRouteController = routes.NewUserRouteController(UserController)
 
-	counterCollection = mongoclient.Database("golang_mongodb").Collection("sequence")
+	counterCollection = mongoclient.Database(config.DBName).Collection("sequence")
 	counterService = repository.NewCounterServiceImpl(counterCollection, ctx)
 
-	tokenService = repository.NewTokenServiceImpl(mongoclient.Database("golang_mongodb"), ctx)
+	tokenService = repository.NewTokenServiceImpl(mongoclient.Database(config.DBName), ctx)
 	tokenController = controllers.NewTokenController(tokenService, counterService)
 	TokenRouteController = routes.NewTokenRouteController(tokenController)
 
