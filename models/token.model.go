@@ -14,7 +14,7 @@ type TokenCategory struct {
 
 type TokenStore struct {
 	ID       uint               `json:"_id" bson:"_id"`
-	Category primitive.ObjectID `json:"category" bson:"category" binding:"required"`
+	Category primitive.ObjectID `json:"category,omitempty" bson:"category,omitempty"`
 	Metadata TokenMetadataStore `json:"metadata" bson:"metadata" binding:"required"`
 }
 

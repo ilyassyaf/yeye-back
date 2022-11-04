@@ -3,8 +3,8 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ilyassyaf/yeyebackend/controllers"
-	"github.com/ilyassyaf/yeyebackend/middleware"
-	"github.com/ilyassyaf/yeyebackend/services"
+	// "github.com/ilyassyaf/yeyebackend/middleware"
+	// "github.com/ilyassyaf/yeyebackend/services"
 )
 
 type TokenRouteController struct {
@@ -15,12 +15,12 @@ func NewTokenRouteController(tokenController controllers.TokenCotroller) TokenRo
 	return TokenRouteController{tokenController}
 }
 
-func (tc *TokenRouteController) TokenRoute(rg *gin.RouterGroup, uService services.UserService) {
+func (tc *TokenRouteController) TokenRoute(rg *gin.RouterGroup /* , uService services.UserService */) {
 	r := rg.Group("token")
 
 	r.GET("/metadata/:id", tc.tokenController.GetMetadata)
 
-	r.Use(middleware.DeserializeUser(uService))
+	// r.Use(middleware.DeserializeUser(uService))
 
 	r.GET("/all", tc.tokenController.GetAll)
 	r.GET("/get", tc.tokenController.Get)

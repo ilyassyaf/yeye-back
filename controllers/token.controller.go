@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/ilyassyaf/yeyebackend/config"
 	"github.com/ilyassyaf/yeyebackend/models"
 	"github.com/ilyassyaf/yeyebackend/services"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -108,15 +107,6 @@ func (tc *TokenCotroller) Store(c *gin.Context) {
 }
 
 func (tc *TokenCotroller) StoreTokenImage(c *gin.Context) {
-	config, err := config.LoadConfig("../")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "fail",
-			"message": "Could not load config",
-		})
-		return
-	}
-
 	file, err := c.FormFile("image_file")
 
 	// The file cannot be received.
@@ -145,7 +135,7 @@ func (tc *TokenCotroller) StoreTokenImage(c *gin.Context) {
 	// File saved successfully. Return proper result
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
-		"path":   config.BaseUrl + "assets/" + newFileName,
+		"path":   "assets/" + newFileName,
 	})
 }
 

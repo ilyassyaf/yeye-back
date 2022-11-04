@@ -8,9 +8,9 @@ import (
 
 type Config struct {
 	DBUri                  string        `mapstructure:"MONGODB_LOCAL_URI"`
+	DBRemoteUri            string        `mapstructure:"MONGODB_REMOTE_URI"`
 	DBName                 string        `mapstructure:"MONGO_LOCAL_DBNAME"`
 	RedisUri               string        `mapstructure:"REDIS_URL"`
-	BaseUrl                string        `mapstructure:"BASE_URL"`
 	Port                   string        `mapstructure:"PORT"`
 	AccessTokenPrivateKey  string        `mapstructure:"ACCESS_TOKEN_PRIVATE_KEY"`
 	AccessTokenPublicKey   string        `mapstructure:"ACCESS_TOKEN_PUBLIC_KEY"`

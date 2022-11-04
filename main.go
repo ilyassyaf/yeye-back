@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
+
+	// "net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
+
+	// "github.com/go-redis/redis/v8"
 	"github.com/ilyassyaf/yeyebackend/config"
 	"github.com/ilyassyaf/yeyebackend/controllers"
 	"github.com/ilyassyaf/yeyebackend/repository"
@@ -23,7 +25,7 @@ var (
 	server      *gin.Engine
 	ctx         context.Context
 	mongoclient *mongo.Client
-	redisclient *redis.Client
+	// redisclient *redis.Client
 
 	userService         services.UserService
 	UserController      controllers.UserController
@@ -50,30 +52,30 @@ func main() {
 
 	defer mongoclient.Disconnect(ctx)
 
-	value, err := redisclient.Get(ctx, "test").Result()
-	if err == redis.Nil {
-		fmt.Println("key: test does not exist")
-	} else if err != nil {
-		panic(err)
-	}
+	// value, err := redisclient.Get(ctx, "test").Result()
+	// if err == redis.Nil {
+	// 	fmt.Println("key: test does not exist")
+	// } else if err != nil {
+	// 	panic(err)
+	// }
 
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:8000", "http://localhost:3000"}
-	corsConfig.AllowCredentials = true
+	// corsConfig := cors.DefaultConfig()
+	// corsConfig.AllowOrigins = []string{"http://localhost:8080", "http://localhost:3000"}
+	// corsConfig.AllowCredentials = true
 
-	server.Use(cors.New(corsConfig))
+	server.Use(cors.Default())
 
 	server.Static("/assets", "./assets")
 
 	router := server.Group("/api")
-	router.GET("/healthchecker", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
-	})
+	// router.GET("/healthchecker", func(ctx *gin.Context) {
+	// 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
+	// })
 
 	AuthRouteController.AuthRoute(router, userService)
 	UserRouteController.UserRoute(router, userService)
-	TokenRouteController.TokenRoute(router, userService)
-	log.Fatal(server.Run(":" + config.Port))
+	TokenRouteController.TokenRoute(router /* , userService */)
+	log.Fatal(server.Run("0.0.0.0:" + config.Port))
 }
 
 func init() {
@@ -85,7 +87,7 @@ func init() {
 	ctx = context.TODO()
 
 	// connect mongo
-	mongoconn := options.Client().ApplyURI(config.DBUri)
+	mongoconn := options.Client().ApplyURI(config.DBRemoteUri)
 	mongoclient, err := mongo.Connect(ctx, mongoconn)
 	if err != nil {
 		panic(err)
@@ -98,20 +100,20 @@ func init() {
 	fmt.Println("MongoDB successfully connected...")
 
 	// connect redis
-	redisclient = redis.NewClient(&redis.Options{
-		Addr: config.RedisUri,
-	})
+	// redisclient = redis.NewClient(&redis.Options{
+	// 	Addr: config.RedisUri,
+	// })
 
-	if _, err := redisclient.Ping(ctx).Result(); err != nil {
-		panic(err)
-	}
+	// if _, err := redisclient.Ping(ctx).Result(); err != nil {
+	// 	panic(err)
+	// }
 
-	err = redisclient.Set(ctx, "test", "Welcome to Golang with Redis and MongoDB", 0).Err()
-	if err != nil {
-		panic(err)
-	}
+	// err = redisclient.Set(ctx, "test", "Welcome to Golang with Redis and MongoDB", 0).Err()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	fmt.Println("Redis client connected successfully...")
+	// fmt.Println("Redis client connected successfully...")
 
 	// collections
 	authCollection = mongoclient.Database(config.DBName).Collection("users")
