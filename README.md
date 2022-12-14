@@ -1,4 +1,6 @@
-1. docker compose up -d
-2. go run main.go
+# YEYE NFT Backend Service
 
-import mongodb pake mongoCompass atau bisa pake localhost:8081 (prefer mongoCompass)
+```console
+$ docker compose up -d
+$ go run main.go
+```
